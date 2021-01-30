@@ -1,41 +1,59 @@
+import json
 from tkinter import *
 from tkinter import messagebox
 import random
 import pyperclip
 
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def pw_generator():
-#Password Generator Project
-    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    # Password Generator Project
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+               'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+               'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 
-    letters_char= [random.choice(letters) for x in range(random.randint(8, 10))]
-    numbers_char= [random.choice(numbers) for x in range(random.randint(2, 4))]
-    symbols_char= [random.choice(symbols) for x in range(random.randint(2, 4))]
-    password_list=letters_char+numbers_char+symbols_char
+    letters_char = [random.choice(letters) for x in range(random.randint(8, 10))]
+    numbers_char = [random.choice(numbers) for x in range(random.randint(2, 4))]
+    symbols_char = [random.choice(symbols) for x in range(random.randint(2, 4))]
+    password_list = letters_char + numbers_char + symbols_char
 
     random.shuffle(password_list)
 
     password = "".join(password_list)
 
-    password_entry.delete(0,END)
-    password_entry.insert(0,password)
+    password_entry.delete(0, END)
+    password_entry.insert(0, password)
     pyperclip.copy(password)
 
+
 # ---------------------------- SAVE PASSWORD ------------------------------- #
+
+
 def button_clicked():
-    if len(website_entry.get())==0 or len(email_entry.get())==0 or len(password_entry.get())==0:
+    new_text = {
+        website_entry.get(): {
+            "email": email_entry.get(),
+            "password": password_entry.get()}}
+    if len(website_entry.get()) == 0 or len(email_entry.get()) == 0 or len(password_entry.get()) == 0:
         messagebox.showwarning(title="Warning", message="Do not leave any field empty")
     else:
-        new_text = website_entry.get() + " | " + email_entry.get() + " | " + password_entry.get()+"\n"
-        is_ok=messagebox.askokcancel(title="Check your info", message=f"Do you want to save below:\n website: {website_entry.get()}\n password: {password_entry.get()}")
-        if is_ok:
-            with open("pw_manager.txt", "a") as text_file:
-                text_file.write(new_text)
+        try:
+            with open("pw_manager.json", "r") as text_file:
+                data = json.load(text_file)
+        except FileNotFoundError:
+            with open("pw_manager.json", "w") as text_file:
+                json.dump(new_text, text_file, indent=4)
+        else:
+            data.update(new_text)
+            with open("pw_manager.json", "w") as text_file:
+                json.dump(data, text_file, indent=4)
+        finally:
             website_entry.delete(0, 'end')
-            email_entry.delete(0, 'end')
             password_entry.delete(0, 'end')
+
+
 # ---------------------------- UI SETUP ------------------------------- #
 
 window = Tk()
