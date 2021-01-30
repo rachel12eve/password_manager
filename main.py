@@ -36,6 +36,7 @@ def button_clicked():
         website_entry.get(): {
             "email": email_entry.get(),
             "password": password_entry.get()}}
+
     if len(website_entry.get()) == 0 or len(email_entry.get()) == 0 or len(password_entry.get()) == 0:
         messagebox.showwarning(title="Warning", message="Do not leave any field empty")
     else:
@@ -52,6 +53,26 @@ def button_clicked():
         finally:
             website_entry.delete(0, 'end')
             password_entry.delete(0, 'end')
+
+
+# ---------------------------- SEARCH PASSWORD ------------------------------- #
+def find_password():
+    web_name = (f"{website_entry.get()}")
+    try:
+        with open("pw_manager.json", "r") as text_file:
+            data = json.load(text_file)
+    except FileNotFoundError:
+        messagebox.showinfo(title="ERROR", message="No such data file")
+    try:
+        messagebox.showinfo(title=f"{website_entry.get()} login",
+                            message=f"Email: {data[web_name]['email']}\n Password: {data[web_name]['password']}")
+        email_entry.delete(0, END)
+        email_entry.insert(END, f"{data[web_name]['email']}")
+        password_entry.insert(END, f"{data[web_name]['password']}")
+        pyperclip.copy(data[web_name]['password'])
+
+    except KeyError:
+        messagebox.showinfo(title=f"{website_entry.get()} login", message="No such website info")
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -71,9 +92,12 @@ website_label = Label(text="Website: ")
 website_label.grid(column=0, row=1)
 website_label.config(padx=0, pady=5)
 
-website_entry = Entry(width=50)
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry = Entry(width=31)
+website_entry.grid(column=1, row=1, columnspan=1)
 website_entry.focus()
+
+search_button = Button(text="Search", width=15, command=find_password)
+search_button.grid(column=2, row=1)
 
 # email label part
 email_label = Label(text="Email/Username: ")
@@ -87,7 +111,7 @@ email_entry.insert(END, "rachel12eve@hotmail.com")
 password_label = Label(text="Password: ")
 password_label.grid(column=0, row=3)
 password_label.config(padx=0, pady=5)
-password_entry = Entry(width=32)
+password_entry = Entry(width=31)
 password_entry.grid(column=1, row=3)
 
 generate_button = Button(text="Generate Password", command=pw_generator)
